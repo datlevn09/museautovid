@@ -2,7 +2,7 @@
 
 Gửi prompt, ảnh và video tham chiếu sang Muse, tự lấy video và ảnh về máy. Chạy trên máy của bạn (macOS, Windows). Chỉ cần danh sách tài khoản Muse của bạn.
 
-**Tải về:** [Mac](https://github.com/datlevn09/museauto/releases/download/v1.4.0/MuseAuto-1.4.0-mac.zip) · [Windows](https://github.com/datlevn09/museauto/releases/download/v1.4.0/MuseAuto-1.4.0-windows.zip) · [Tất cả phiên bản](https://github.com/datlevn09/museauto/releases)
+**Tải về:** [Mac](https://github.com/datlevn09/museautovid/releases/download/v1.4.0/MuseAuto-1.4.0-mac.zip) · [Windows](https://github.com/datlevn09/museautovid/releases/download/v1.4.0/MuseAuto-1.4.0-windows.zip) · [Tất cả phiên bản](https://github.com/datlevn09/museautovid/releases)
 
 ## Tính năng
 
