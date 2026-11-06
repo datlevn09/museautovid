@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Muse Auto · Gửi prompt và ảnh, lấy video về</title>
+<meta name="description" content="Muse Auto chạy trên máy của bạn: gửi prompt, ảnh và video tham chiếu sang Muse, tự lấy video và ảnh về. Nhiều tài khoản, nhiều máy, tạo hàng loạt.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14110d;--ink-2:#1d1913;--panel:#241f17;--line:#3a3226;--paper:#f4ead7;--muted:#b9a98d;
+  --amber:#ffb23e;--amber-2:#ffd48a;--green:#8fd6a4;--blue:#7fb8f0;--red:#f0926a;
+  --display:'Fraunces',Georgia,serif;--body:'Manrope',system-ui,sans-serif;
+  --gutter:clamp(16px,5vw,64px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--paper);font:16px/1.65 var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:0 var(--gutter)}
+.skip{position:absolute;left:-999px}.skip:focus{left:12px;top:12px;background:var(--amber);color:#1a1205;padding:8px 12px;border-radius:8px;z-index:9}
+header.top{display:flex;align-items:center;justify-content:space-between;padding:20px 0}
+.logo{font:700 22px/1 var(--display);letter-spacing:.2px;text-decoration:none}.logo i{font-style:normal;color:var(--amber)}
+nav.top a{margin-left:22px;text-decoration:none;color:var(--muted);font-size:14px}nav.top a:hover{color:var(--paper)}
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(24px,5vw,72px);align-items:center;padding:clamp(28px,6vw,84px) 0 clamp(40px,7vw,96px)}
+.eyebrow{font:700 12px/1 var(--body);letter-spacing:.18em;text-transform:uppercase;color:var(--amber)}
+h1{font:700 clamp(40px,6.4vw,84px)/.98 var(--display);letter-spacing:-.02em;margin:18px 0 20px}
+h1 em{font-style:italic;color:var(--amber-2);font-weight:500}
+.lead{font-size:clamp(16px,1.6vw,19px);color:#d9ccb2;max-width:34em;margin:0 0 28px}
+.dl{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 20px;border-radius:14px;font-weight:700;text-decoration:none;border:1.5px solid var(--amber);transition:transform .15s,background .15s}
+.btn.main{background:var(--amber);color:#1a1205}.btn.main:hover{background:var(--amber-2);transform:translateY(-2px)}
+.btn.ghost{color:var(--amber-2)}.btn.ghost:hover{background:#2a2216;transform:translateY(-2px)}
+.btn small{display:block;font-weight:500;opacity:.75;font-size:12px}
+.note{font-size:13px;color:var(--muted)}
+/* the board, drawn in CSS */
+.board{background:linear-gradient(160deg,#2a2318,#1b1710);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 40px 90px -30px #000,0 0 0 1px #0006 inset;transform:rotate(1.2deg)}
+.board .bar{display:flex;gap:6px;margin-bottom:14px}.board .bar i{width:10px;height:10px;border-radius:50%;background:#4b4030}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.kpi{background:#1a150e;border:1px solid var(--line);border-radius:10px;padding:8px 10px}.kpi b{display:block;font:700 22px/1.1 var(--display)}.kpi span{font-size:10px;color:var(--muted)}
+.chart{display:flex;align-items:flex-end;gap:4px;height:84px;background:#1a150e;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:12px}
+.chart i{flex:1;background:var(--green);border-radius:3px 3px 0 0;opacity:.9}
+.job{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;background:#1a150e;border:1px solid var(--line);border-radius:10px;padding:7px 10px;margin-top:6px;font-size:12px}
+.job .th{width:30px;aspect-ratio:9/16;border-radius:5px;background:linear-gradient(135deg,#7a5a2a,#3a2c18)}.job .th.b{background:linear-gradient(135deg,#2a4a6a,#1a2a3a)}.job .th.g{background:linear-gradient(135deg,#2f6a46,#183424)}
+.job b{font-weight:600}.job small{color:var(--muted);display:block}
+.pill{padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;color:#10151b}.pill.b{background:var(--blue)}.pill.g{background:var(--green)}.pill.a{background:var(--amber)}
+section.block{padding:clamp(40px,7vw,96px) 0;border-top:1px solid var(--line)}
+h2{font:700 clamp(28px,4.2vw,50px)/1.05 var(--display);letter-spacing:-.015em;margin:12px 0 16px;max-width:16em}
+.sub{color:#d9ccb2;max-width:40em;margin:0 0 36px}
+.feat{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.card{grid-column:span 4;background:var(--ink-2);border:1px solid var(--line);border-radius:20px;padding:24px}
+.card.wide{grid-column:span 8}.card.tall{grid-row:span 2}
+.card .n{font:500 14px var(--display);color:var(--amber);font-style:italic}
+.card h3{font:700 22px/1.15 var(--display);margin:8px 0 10px}
+.card p{margin:0;color:#cfc2a8;font-size:15px}
+.card ul{margin:12px 0 0;padding-left:18px;color:#cfc2a8;font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:s}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;counter-increment:s}
+.step::before{content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--amber);color:#1a1205;font:700 16px var(--display);margin-bottom:12px}
+.step b{display:block;margin-bottom:6px}.step p{margin:0;font-size:14px;color:#cfc2a8}
+code{background:#120f0a;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:13px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.box{border:1px solid var(--line);border-radius:18px;padding:22px;background:var(--ink-2)}.box h3{margin:0 0 8px;font:700 20px var(--display)}.box ul{margin:0;padding-left:18px;color:#cfc2a8;font-size:14px}
+details{border-top:1px solid var(--line);padding:16px 0}details:last-child{border-bottom:1px solid var(--line)}summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between}summary::after{content:'+';color:var(--amber);font-size:20px;line-height:1}details[open] summary::after{content:'–'}details p{color:#cfc2a8;margin:10px 0 0;max-width:46em}
+.final{text-align:center;padding:clamp(48px,8vw,110px) 0}
+.final h2{margin-inline:auto}.final .dl{justify-content:center}
+footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:13px}
+:focus-visible{outline:2px solid var(--amber-2);outline-offset:3px}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.board{transform:none}.card,.card.wide{grid-column:span 12}.steps,.two{grid-template-columns:1fr}nav.top{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#tai">Bỏ qua tới phần tải</a>
+<div class="wrap">
+<header class="top"><a class="logo" href="#">Muse<i>Auto</i></a><nav class="top" aria-label="Điều hướng"><a href="#tinh-nang">Tính năng</a><a href="#cai-dat">Cài đặt</a><a href="#hoi-dap">Hỏi đáp</a><a href="#tai">Tải về</a></nav></header>
+
+<main id="main">
+<section class="hero" aria-labelledby="h1">
+  <div>
+    <div class="eyebrow">Chạy trên máy của bạn · macOS và Windows</div>
+    <h1 id="h1">Gửi prompt và ảnh. <em>Lấy video về.</em></h1>
+    <p class="lead">Muse Auto gửi nguyên prompt, ảnh và video tham chiếu của bạn sang Muse, rồi tự tải video và ảnh về máy. Làm hàng loạt, nhiều tài khoản, nhiều máy. Chỉ cần danh sách tài khoản Muse của bạn.</p>
+    <div class="dl">
+      <a class="btn main" href="https://github.com/datlevn09/museauto/releases/download/v1.4.0/MuseAuto-1.4.0-mac.zip">⬇ Tải cho Mac<small>v1.4.0 · .zip</small></a>
+      <a class="btn ghost" href="https://github.com/datlevn09/museauto/releases/download/v1.4.0/MuseAuto-1.4.0-windows.zip">⬇ Tải cho Windows<small>v1.4.0 · .zip</small></a>
+    </div>
+    <p class="note">Cần tài khoản Muse của riêng bạn. Bản Windows chưa được thử trên máy Windows thật; hãy chạy thử một job trước.</p>
+  </div>
+  <div class="board" role="img" aria-label="Minh hoạ bảng điều khiển: số liệu, biểu đồ clip mỗi giờ và danh sách job">
+    <div class="bar"><i></i><i></i><i></i></div>
+    <div class="kpis"><div class="kpi"><b style="color:var(--green)">712</b><span>Clip đã có</span></div><div class="kpi"><b style="color:var(--blue)">14</b><span>Đang tạo</span></div><div class="kpi"><b>18/36</b><span>Tài khoản sẵn sàng</span></div></div>
+    <div class="chart"><i style="height:20%"></i><i style="height:35%"></i><i style="height:55%"></i><i style="height:90%"></i><i style="height:80%"></i><i style="height:100%"></i><i style="height:70%"></i><i style="height:60%"></i><i style="height:65%"></i><i style="height:40%"></i><i style="height:45%"></i><i style="height:30%"></i></div>
+    <div class="job"><span class="th"></span><div><b>Đổi trang phục theo ảnh</b><small>Video · 9:16 · như mẫu</small></div><span class="pill b">Muse đang tạo</span></div>
+    <div class="job"><span class="th b"></span><div><b>Chú cừu trên đồng cỏ lúc bình minh</b><small>Ảnh · 9:16</small></div><span class="pill g">Xong</span></div>
+    <div class="job"><span class="th g"></span><div><b>Clone kênh · bản màu nước</b><small>Video · 15 giây</small></div><span class="pill a">Chờ lượt</span></div>
+  </div>
+</section>
+
+<section class="block" id="tinh-nang" aria-labelledby="h2a">
+  <div class="eyebrow">Tính năng</div>
+  <h2 id="h2a">Một bảng điều khiển cho cả dây chuyền.</h2>
+  <p class="sub">Từ một prompt đến cả trăm video, bạn xem và bấm trên cùng một trang. Mỗi job có nút thao tác riêng, bấm là gửi lệnh.</p>
+  <div class="feat">
+    <article class="card wide"><div class="n">01</div><h3>Tạo từ tham chiếu</h3><p>Nhập prompt, thêm ảnh hoặc video tham chiếu, chọn video, ảnh hoặc cả hai. Chọn tỉ lệ khung hình (9:16, 16:9, 1:1…) và độ dài. Gửi nguyên văn sang Muse, không có mô hình AI nào xử lý thêm.</p><ul><li>Nhiều prompt một lần, ngăn cách bằng dòng <code>---</code></li><li>Mỗi prompt một tham chiếu, hoặc gắn tất cả tham chiếu vào mọi prompt</li><li>Xem kết quả dạng bảng hoặc card, tải về, tạo thêm bản</li></ul></article>
+    <article class="card"><div class="n">02</div><h3>Đổi mặt, đổi trang phục</h3><p>Dán link video mẫu hoặc tải video lên, kèm ảnh khuôn mặt hoặc trang phục. App tự tải video mẫu về và gửi cùng ảnh.</p></article>
+    <article class="card"><div class="n">03</div><h3>Tạo ảnh</h3><p>Một tab riêng cho ảnh, cùng cách làm việc: prompt, tham chiếu, tỉ lệ, hàng loạt.</p></article>
+    <article class="card"><div class="n">04</div><h3>Clone kênh</h3><p>Dán link video hoặc kênh, chọn 1–10 phong cách, app tải nguồn, gửi Muse và lấy file về. Mỗi bản có nút tạo lại.</p></article>
+    <article class="card"><div class="n">05</div><h3>Nhiều tài khoản Muse</h3><p>Tự đăng nhập bằng link OTP, hiện trạng thái từng tài khoản, cho nghỉ khi hết lượt và chuyển job sang tài khoản khác. Tài khoản dính checkpoint tự bị bỏ khỏi danh sách.</p></article>
+    <article class="card wide"><div class="n">06</div><h3>Nhiều máy, một chỗ quản lý</h3><p>Mỗi máy chạy độc lập và giữ video của chính nó. Muốn gom lại, nối các máy vào máy chủ quản lý của bạn bằng mã ghép hoặc đăng nhập Google. Chuyển file đi thẳng giữa hai máy, không qua máy chủ.</p></article>
+  </div>
+</section>
+
+<section class="block" id="cai-dat" aria-labelledby="h2b">
+  <div class="eyebrow">Cài đặt</div>
+  <h2 id="h2b">Ba bước, dưới năm phút.</h2>
+  <div class="steps">
+    <div class="step"><b>Tải và giải nén</b><p>Chọn bản Mac hoặc Windows ở trên. Giải nén vào một thư mục bất kỳ có quyền ghi.</p></div>
+    <div class="step"><b>Chạy cài đặt</b><p>Mac: <code>bash Install.command</code>. Windows: chạy <code>Install.bat</code>. Cần Python 3.10+ và FFmpeg.</p></div>
+    <div class="step"><b>Thêm tài khoản Muse, bấm Start</b><p>Mở <code>http://127.0.0.1:18745</code>, vào <b>Tài khoản &amp; cấu hình</b> để thêm tài khoản (email, kèm link OTP nếu có).</p></div>
+  </div>
+</section>
+
+<section class="block" aria-labelledby="h2c">
+  <div class="eyebrow">Nói thẳng</div>
+  <h2 id="h2c">Nó làm gì, và không làm gì.</h2>
+  <div class="two">
+    <div class="box"><h3>Làm</h3><ul><li>Gửi prompt và file của bạn sang Muse, tự lấy kết quả về máy</li><li>Quản lý nhiều tài khoản và hàng chờ, tự thử lại bằng tài khoản khác</li><li>Giữ video trên máy bạn; không tải lên máy chủ của chúng tôi</li></ul></div>
+    <div class="box"><h3>Không làm</h3><ul><li>Không kèm tài khoản Muse; bạn dùng tài khoản của chính bạn</li><li>Không kiểm tra chất lượng hay bản quyền thay bạn</li><li>Không đảm bảo Muse chấp nhận mọi nội dung; Muse có thể từ chối</li></ul></div>
+  </div>
+</section>
+
+<section class="block" id="hoi-dap" aria-labelledby="h2d">
+  <div class="eyebrow">Hỏi đáp</div>
+  <h2 id="h2d">Hay gặp.</h2>
+  <details><summary>Tôi cần chuẩn bị gì?</summary><p>Tài khoản Muse của chính bạn, Python 3.10 trở lên và FFmpeg. Mỗi tài khoản Muse có giới hạn video mỗi ngày do Muse đặt ra; app sẽ cho tài khoản nghỉ khi hết lượt và chuyển job sang tài khoản khác.</p></details>
+  <details><summary>Dùng ảnh khuôn mặt người khác được không?</summary><p>Chỉ dùng ảnh và video của người đã đồng ý, hoặc nội dung bạn có quyền sử dụng. Muse có thể từ chối một số yêu cầu liên quan đến khuôn mặt người thật.</p></details>
+  <details><summary>Video lưu ở đâu?</summary><p>Trên máy chạy app, trong thư mục dữ liệu của app. Nếu dùng nhiều máy, mỗi máy giữ file của nó; bạn có thể chuyển file trực tiếp giữa hai máy.</p></details>
+  <details><summary>Bản Windows chạy được chưa?</summary><p>Đã kiểm thử phần mềm trên macOS. Bản Windows chưa chạy trên máy Windows thật, nên hãy thử một job trước và báo lỗi nếu có.</p></details>
+</section>
+
+<section class="final" id="tai" aria-labelledby="h2e">
+  <h2 id="h2e">Tải Muse Auto</h2>
+  <p class="sub" style="margin-inline:auto">Phiên bản 1.4.0 · ngày 6/11/2026</p>
+  <div class="dl">
+    <a class="btn main" href="https://github.com/datlevn09/museauto/releases/download/v1.4.0/MuseAuto-1.4.0-mac.zip">⬇ Mac<small>macOS · Apple Silicon</small></a>
+    <a class="btn ghost" href="https://github.com/datlevn09/museauto/releases/download/v1.4.0/MuseAuto-1.4.0-windows.zip">⬇ Windows<small>Windows 10/11 · 64-bit</small></a>
+  </div>
+  <p class="note"><a href="https://github.com/datlevn09/museauto/releases">Tất cả phiên bản</a></p>
+</section>
+</main>
+<footer><div class="wrap">Muse Auto · trang giới thiệu tạm. Muse là sản phẩm của bên thứ ba; Muse Auto không thuộc về Muse.</div></footer>
+</div>
+</body>
+</html>
