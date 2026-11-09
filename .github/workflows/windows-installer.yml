@@ -32,6 +32,13 @@ jobs:
           $installer = (Get-ChildItem -Filter *.exe).FullName
           $p = Start-Process -Wait -PassThru -FilePath $installer -ArgumentList "/S", "/D=$root"
           if ($p.ExitCode -ne 0) { throw "Setup exit code $($p.ExitCode)" }
+          # Diagnostic run: check the Windows bind probe on the installed candidate before repackaging.
+          $bootstrap = Join-Path $root "bootstrap.py"
+          $old = [IO.File]::ReadAllText($bootstrap)
+          $new = $old.Replace("with socket.create_connection(('127.0.0.1', port), timeout=1):", "with socket.socket() as probe:`n            probe.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)`n            probe.bind(('127.0.0.1', port))`n            return")
+          $new = $new.Replace("except ConnectionRefusedError:`n        return", "except OSError:`n        pass")
+          if ($old -eq $new) { throw "Diagnostic patch didn't apply" }
+          [IO.File]::WriteAllText($bootstrap, $new)
           $env:Path = "$env:SystemRoot\System32;$env:SystemRoot"
           $env:MUSE_PORT = "19345"
           $env:MUSE_STATE = "$env:RUNNER_TEMP\MuseAutoVidState"
