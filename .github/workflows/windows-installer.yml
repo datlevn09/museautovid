@@ -60,20 +60,19 @@ jobs:
         run: |
           $root = "$env:LOCALAPPDATA\MuseAutoVidSmoke"
           $env:Path = "$env:SystemRoot\System32;$env:SystemRoot"
-          $env:MUSE_PORT = "19346"
-          $env:MUSE_STATE = "$env:RUNNER_TEMP\MuseAutoVidDesktopState"
+          Remove-Item Env:MUSE_PORT,Env:MUSE_STATE -ErrorAction SilentlyContinue
           $shell = New-Object -ComObject WScript.Shell
           $link = Join-Path $shell.SpecialFolders.Item("Desktop") "MuseAutoVid.lnk"
           if (!(Test-Path $link)) { throw "Desktop shortcut missing" }
           $shortcut = $shell.CreateShortcut($link)
           if ($shortcut.TargetPath -ne "$root\python\pythonw.exe") { throw "Unexpected desktop launcher" }
           Start-Process -FilePath $link
-          $address = "http://127.0.0.1:19346"
+          $address = "http://127.0.0.1:18745"
           for ($i=0;$i -lt 45;$i++) {
             try { $info=Invoke-RestMethod "$address/api/edition" -NoProxy -TimeoutSec 2; break } catch { Start-Sleep 1 }
           }
           if (!$info -or $info.create -or !$info.release_id) {
-            Get-Content "$env:MUSE_STATE\runner_logs\hub.log" -Tail 20 -ErrorAction SilentlyContinue
+            Get-Content "$env:LOCALAPPDATA\muse-standalone\runner_logs\hub.log" -Tail 20 -ErrorAction SilentlyContinue
             throw "Shortcut did not start the licensed Hub"
           }
           $env:PLAYWRIGHT_BROWSERS_PATH = "$root\browsers"
@@ -83,7 +82,7 @@ jobs:
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               page = browser.new_page()
-              page.goto('http://127.0.0.1:19346/workflow#/make')
+              page.goto('http://127.0.0.1:18745/workflow#/make')
               page.get_by_role('button', name='Đăng nhập bằng Google', exact=True).wait_for(timeout=60000)
               print('Desktop shortcut, packaged Chromium, and Google sign-in dialog OK.')
               browser.close()
