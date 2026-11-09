@@ -1,29 +1,16 @@
-# Muse Auto
+# MuseAutoVid
 
-Gửi prompt, ảnh và video tham chiếu sang Muse, tự lấy video và ảnh về máy. Chạy trên máy của bạn (macOS, Windows). Chỉ cần danh sách tài khoản Muse của bạn.
+Ứng dụng chạy trên máy để tạo ảnh và video bằng tài khoản Muse của bạn. [Trang tải MuseAutoVid](https://muse-pay.datle-dpro.workers.dev/)
 
-**Tải về:** [Mac](https://github.com/datlevn09/museautovid/releases/download/v1.4.0/MuseAuto-1.4.0-mac.zip) · [Windows](https://github.com/datlevn09/museautovid/releases/download/v1.4.0/MuseAuto-1.4.0-windows.zip) · [Tất cả phiên bản](https://github.com/datlevn09/museautovid/releases)
+| Hệ điều hành | Bộ cài |
+| --- | --- |
+| macOS 15 trở lên, chip Apple Silicon | [MuseAutoVid 1.6.0 cho Mac](https://github.com/datlevn09/museautovid/releases/download/v1.6.0/MuseAutoVid-1.6.0-macOS-arm64.dmg) |
+| Windows 10/11, x64 | [MuseAutoVid 1.6.0 cho Windows](https://github.com/datlevn09/museautovid/releases/download/v1.6.0/MuseAutoVid-1.6.0-Windows-x64-Setup.exe) |
 
-## Tính năng
+Trên Mac, mở DMG và kéo app vào Applications. Trên Windows, chạy Setup.exe và mở app từ Start. Bộ cài chứa trình duyệt, Python, FFmpeg và model chép lời. Khi mở app, đăng nhập Google để kích hoạt bản quyền, rồi thêm tài khoản Muse trong mục Tài khoản.
 
-- **Tạo từ tham chiếu:** prompt + ảnh/video tham chiếu, chọn video, ảnh hoặc cả hai, tỉ lệ khung hình và độ dài. Gửi nguyên văn sang Muse, không có mô hình AI nào xử lý thêm.
-- **Đổi khuôn mặt, trang phục** trong video mẫu: dán link video mẫu hoặc tải video lên, kèm ảnh.
-- **Tạo ảnh** và **tạo hàng loạt** (nhiều prompt, nhiều tham chiếu, nhiều bản).
-- **Clone kênh:** link video hoặc kênh, 1–10 phong cách, tự tải nguồn, gửi Muse, lấy file về.
-- **Nhiều tài khoản Muse:** tự đăng nhập bằng link OTP, hiện trạng thái, cho nghỉ khi hết lượt và chuyển job sang tài khoản khác; tài khoản dính checkpoint tự bị bỏ.
-- **Nhiều máy:** mỗi máy chạy độc lập và giữ video của nó; nối vào máy chủ quản lý riêng bằng mã ghép hoặc đăng nhập Google.
+**Dùng thử 7 ngày** theo email Google đã xác minh. Mỗi lần tạo một ảnh hoặc video, tối đa 5 lượt mỗi ngày trên máy.
 
-## Cài đặt
+**Pro 199.000 ₫ / 30 ngày** mở tạo hàng loạt, tạo từ link kênh và hai luồng Studio. Voice thành video chép lời cục bộ, cho duyệt prompt và ghép từng cảnh theo voice. Video thời trang tạo ảnh mặc thử, cho duyệt ảnh rồi gửi ảnh đã chọn sang Muse để tạo chuyển động. Kết quả lưu trên máy. Lượt tạo nội dung do tài khoản Muse cung cấp.
 
-1. Giải nén vào một thư mục bất kỳ có quyền ghi.
-2. Cần Python 3.10+ và FFmpeg. Mac: `bash Install.command`. Windows: chạy `Install.bat`.
-3. Chạy `Start.command` (Mac) hoặc `Start.bat` (Windows), mở `http://127.0.0.1:18745`, vào **Tài khoản & cấu hình** để thêm tài khoản Muse.
-
-Chi tiết trong `README.md` bên trong gói tải về.
-
-## Lưu ý
-
-- Cần tài khoản Muse của riêng bạn; mỗi tài khoản có giới hạn video mỗi ngày do Muse đặt ra.
-- Chỉ dùng ảnh, video của người đã đồng ý hoặc nội dung bạn có quyền sử dụng. Muse có thể từ chối một số yêu cầu.
-- Đã kiểm thử trên macOS (Apple Silicon). Bản Windows chưa được chạy trên máy Windows thật.
-- Muse là sản phẩm của bên thứ ba; Muse Auto không thuộc về Muse.
+Mã kiểm tra SHA-256 và ghi chú về chữ ký nhà phát hành đi cùng [bản phát hành](https://github.com/datlevn09/museautovid/releases/tag/v1.6.0).
