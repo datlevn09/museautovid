@@ -1,7 +1,5 @@
 name: Validate Windows installer
-on:
-  push:
-    branches: [qa/windows-1.6.0]
+on: workflow_dispatch
 permissions:
   contents: write
 jobs:

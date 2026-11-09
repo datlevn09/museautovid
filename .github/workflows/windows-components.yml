@@ -1,0 +1,54 @@
+name: Validate component installer Windows
+on:
+  push:
+    branches: [qa/windows-1.6.0]
+permissions:
+  contents: read
+jobs:
+  component-install:
+    runs-on: windows-2022
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download installer candidate
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download v1.6.1 --repo "${{ github.repository }}" --pattern "*WebSetup.exe"
+          if ($LASTEXITCODE) { throw "Download failed" }
+          $hash=(Get-FileHash (Get-ChildItem -Filter *.exe).FullName -Algorithm SHA256).Hash
+          if ($hash -ne "d0603624dba6f320dee9524333e027163cf1cfb709f0163b8adfc6bd38b1765c") { throw "Installer hash mismatch" }
+      - name: Clean install, real UI, MCP and reuse existing libraries
+        shell: pwsh
+        run: |
+          $root="$env:LOCALAPPDATA\MuseComponentQA"
+          $env:CODEX_HOME="$env:RUNNER_TEMP\CodexQA"
+          $env:MUSE_STATE="$env:RUNNER_TEMP\MuseStateQA"
+          $env:MUSE_PORT="19345"
+          $claude="$env:APPDATA\Claude"
+          New-Item -ItemType Directory $claude -Force | Out-Null
+          '{"mcpServers":{"other":{"command":"preserve"}},"unrelated":"preserved"}' | Set-Content "$claude\claude_desktop_config.json"
+          $installer=(Get-ChildItem -Filter *.exe).FullName
+          $p=Start-Process $installer -ArgumentList "/S","/D=$root" -PassThru -Wait
+          if ($p.ExitCode -ne 0) {
+            Get-Content "$env:LOCALAPPDATA\MuseAutoVid\runtime-cache\last-setup.jsonl" -Tail 30 -ErrorAction SilentlyContinue
+            throw "Setup failed $($p.ExitCode)"
+          }
+          Get-ChildItem $root -Name
+          $cfg=Get-Content "$root\active.json" -Raw | ConvertFrom-Json
+          & $cfg.python -B $cfg.launcher --root $root doctor
+          if ($LASTEXITCODE) { throw "Doctor failed" }
+          $out="$env:RUNNER_TEMP\component-hub.out"
+          $err="$env:RUNNER_TEMP\component-hub.err"
+          $hub=Start-Process $cfg.python -ArgumentList "-B",$cfg.launcher,"--root",$root,"start","--no-open" -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
+          try {
+            for($i=0;$i -lt 50;$i++){
+              try {$edition=Invoke-RestMethod "http://127.0.0.1:19345/api/edition" -NoProxy -TimeoutSec 2;break}catch{Start-Sleep 1}
+            }
+            if (!$edition -or $edition.create) { throw "Google sign-in gate failed" }
+            $env:PYTHONPATH=($cfg.core_sites -join ";")
+            if ($cfg.browser_cache) {$env:PLAYWRIGHT_BROWSERS_PATH=$cfg.browser_cache}
+            & $cfg.python -B .github/scripts/component-qa.py $root
+            if ($LASTEXITCODE) {throw "UI/MCP/reuse tests failed"}
+          } finally {Get-Content $out,$err -Tail 20 -ErrorAction SilentlyContinue;Stop-Process -Id $hub.Id -Force -ErrorAction SilentlyContinue}
