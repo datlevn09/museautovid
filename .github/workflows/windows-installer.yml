@@ -24,6 +24,7 @@ jobs:
           if ($LASTEXITCODE) { throw "Checksum download failed" }
           $file = (Get-ChildItem -Filter *.exe).FullName
           $hash = (Get-FileHash $file -Algorithm SHA256).Hash
+          if ($hash -ne "09d807fecd7520414a458903122032c02d8d4237e317da3c8afa4c01226d94f7") { throw "Unexpected Windows release candidate" }
           if (!(Select-String -LiteralPath SHA256SUMS.txt -SimpleMatch $hash -Quiet)) { throw "Checksum mismatch" }
       - name: Install, check bundled runtime, and open Hub
         shell: pwsh
@@ -83,7 +84,11 @@ jobs:
               browser = p.chromium.launch(headless=True)
               page = browser.new_page()
               page.goto('http://127.0.0.1:18745/workflow#/make')
-              page.get_by_role('button', name='Đăng nhập bằng Google', exact=True).wait_for(timeout=60000)
+              try:
+                  page.get_by_role('button', name='Đăng nhập bằng Google', exact=True).wait_for(timeout=60000)
+              except Exception:
+                  print('Login state:', ascii(page.locator('#up-body').inner_text()[:600]))
+                  raise
               print('Desktop shortcut, packaged Chromium, and Google sign-in dialog OK.')
               browser.close()
           '@ | Set-Content "$env:RUNNER_TEMP\muse-ui-smoke.py" -Encoding UTF8
