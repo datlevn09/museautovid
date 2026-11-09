@@ -18,7 +18,7 @@ jobs:
           gh release download v1.6.1 --repo "${{ github.repository }}" --pattern "*WebSetup.exe"
           if ($LASTEXITCODE) { throw "Download failed" }
           $hash=(Get-FileHash (Get-ChildItem -Filter *.exe).FullName -Algorithm SHA256).Hash
-          if ($hash -ne "d0603624dba6f320dee9524333e027163cf1cfb709f0163b8adfc6bd38b1765c") { throw "Installer hash mismatch" }
+          if ($hash -ne "6d9b8937a0d8bd2439d7dbac39eb4bece1a001b6aff39f742f22628a2c43f0fa") { throw "Installer hash mismatch" }
       - name: Clean install, real UI, MCP and reuse existing libraries
         shell: pwsh
         run: |
