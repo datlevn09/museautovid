@@ -14,8 +14,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          gh release download v1.6.0 --repo "${{ github.repository }}" --pattern "*.exe" --pattern "SHA256SUMS.txt"
-          if ($LASTEXITCODE) { throw "Installer download failed" }
+          for ($i=0;$i -lt 12;$i++) {
+            gh release download v1.6.0 --repo "${{ github.repository }}" --pattern "*.exe" --clobber
+            if ($LASTEXITCODE -eq 0 -and (Get-ChildItem -Filter *.exe)) { break }
+            Start-Sleep 15
+          }
+          if (!(Get-ChildItem -Filter *.exe)) { throw "Installer download failed" }
+          gh release download v1.6.0 --repo "${{ github.repository }}" --pattern "SHA256SUMS.txt"
+          if ($LASTEXITCODE) { throw "Checksum download failed" }
           $file = (Get-ChildItem -Filter *.exe).FullName
           $hash = (Get-FileHash $file -Algorithm SHA256).Hash
           if (!(Select-String -LiteralPath SHA256SUMS.txt -SimpleMatch $hash -Quiet)) { throw "Checksum mismatch" }
