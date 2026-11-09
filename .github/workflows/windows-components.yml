@@ -30,6 +30,9 @@ jobs:
           New-Item -ItemType Directory $claude -Force | Out-Null
           '{"mcpServers":{"other":{"command":"preserve"}},"unrelated":"preserved"}' | Set-Content "$claude\claude_desktop_config.json"
           $installer=(Get-ChildItem -Filter *.exe).FullName
+          $env:MUSE_QA_HELPERS="$env:RUNNER_TEMP\muse-embedded-helper"
+          & "$env:ProgramFiles\7-Zip\7z.exe" x $installer "-o$env:MUSE_QA_HELPERS" -y | Out-Null
+          if ($LASTEXITCODE) {throw "Cannot inspect bundled setup"}
           $p=Start-Process $installer -ArgumentList "/S","/D=$root" -PassThru -Wait
           if ($p.ExitCode -ne 0) {
             Get-Content "$env:LOCALAPPDATA\MuseAutoVid\runtime-cache\last-setup.jsonl" -Tail 30 -ErrorAction SilentlyContinue

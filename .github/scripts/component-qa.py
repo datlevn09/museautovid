@@ -51,9 +51,9 @@ env={**os.environ,'MUSE_CORE_PYTHON':str(python),'MUSE_ASR_PYTHON':str(python),
      'MUSE_FFMPEG':cfg['ffmpeg'],'MUSE_WHISPER_MODEL':cfg['model']}
 if cfg.get('browser'):env['MUSE_BROWSER_EXECUTABLE']=cfg['browser']
 if cfg.get('browser_cache'):env['PLAYWRIGHT_BROWSERS_PATH']=cfg['browser_cache']
-manifest=next(root.glob('components-win.json'))
+manifest=next(Path(os.environ['MUSE_QA_HELPERS']).rglob('components-win.json'))
 # Bootstrap helper copies are retained by the native installer in its own managed directory.
-helper=next(root.glob('component_setup.py'))
+helper=next(Path(os.environ['MUSE_QA_HELPERS']).rglob('component_setup.py'))
 import hashlib
 expected=hashlib.sha256(manifest.read_bytes()).hexdigest()
 second=root.parent/'reuse-components'
