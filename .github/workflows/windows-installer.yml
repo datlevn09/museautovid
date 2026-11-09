@@ -15,16 +15,16 @@ jobs:
         shell: pwsh
         run: |
           for ($i=0;$i -lt 12;$i++) {
-            gh release download v1.6.0 --repo "${{ github.repository }}" --pattern "*.exe" --clobber
+            gh release download v1.6.0-web-qa --repo "${{ github.repository }}" --pattern "*WebSetup.exe" --clobber
             if ($LASTEXITCODE -eq 0 -and (Get-ChildItem -Filter *.exe)) { break }
             Start-Sleep 15
           }
           if (!(Get-ChildItem -Filter *.exe)) { throw "Installer download failed" }
-          gh release download v1.6.0 --repo "${{ github.repository }}" --pattern "SHA256SUMS.txt"
+          gh release download v1.6.0-web-qa --repo "${{ github.repository }}" --pattern "SHA256SUMS.txt"
           if ($LASTEXITCODE) { throw "Checksum download failed" }
           $file = (Get-ChildItem -Filter *.exe).FullName
           $hash = (Get-FileHash $file -Algorithm SHA256).Hash
-          if ($hash -ne "09d807fecd7520414a458903122032c02d8d4237e317da3c8afa4c01226d94f7") { throw "Unexpected Windows release candidate" }
+          if ($hash -ne "5408678f2a20f33ac9bf21bc21f5a372247e8b5d6a5bb6a1f523adee0abfe6db") { throw "Unexpected Windows release candidate" }
           if (!(Select-String -LiteralPath SHA256SUMS.txt -SimpleMatch $hash -Quiet)) { throw "Checksum mismatch" }
       - name: Install, check bundled runtime, and open Hub
         shell: pwsh
