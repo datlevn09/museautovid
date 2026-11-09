@@ -1,0 +1,44 @@
+name: Validate Windows installer
+on:
+  push:
+    branches: [qa/windows-1.6.0]
+permissions:
+  contents: write
+jobs:
+  clean-install:
+    runs-on: windows-2022
+    timeout-minutes: 40
+    steps:
+      - name: Download release candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          gh release download v1.6.0 --repo "${{ github.repository }}" --pattern "*.exe" --pattern "SHA256SUMS.txt"
+          if ($LASTEXITCODE) { throw "Installer download failed" }
+          $file = (Get-ChildItem -Filter *.exe).FullName
+          $hash = (Get-FileHash $file -Algorithm SHA256).Hash
+          if (!(Select-String -LiteralPath SHA256SUMS.txt -SimpleMatch $hash -Quiet)) { throw "Checksum mismatch" }
+      - name: Install, check bundled runtime, and open Hub
+        shell: pwsh
+        run: |
+          $root = "$env:LOCALAPPDATA\MuseAutoVidSmoke"
+          $installer = (Get-ChildItem -Filter *.exe).FullName
+          $p = Start-Process -Wait -PassThru -FilePath $installer -ArgumentList "/S", "/D=$root"
+          if ($p.ExitCode -ne 0) { throw "Setup exit code $($p.ExitCode)" }
+          $env:Path = "$env:SystemRoot\System32;$env:SystemRoot"
+          $env:MUSE_PORT = "19345"
+          $env:MUSE_STATE = "$env:RUNNER_TEMP\MuseAutoVidState"
+          & "$root\python\python.exe" -I "$root\bootstrap.py" doctor
+          if ($LASTEXITCODE) { throw "Bundled runtime doctor failed" }
+          $hub=Start-Process -PassThru -FilePath "$root\python\python.exe" -ArgumentList "-I","$root\bootstrap.py","start","--no-open"
+          try {
+            $url = "http://127.0.0.1:19345"
+            for ($i=0;$i -lt 45;$i++) {
+              try { $edition=Invoke-RestMethod "$url/api/edition" -TimeoutSec 3; break } catch { Start-Sleep 1 }
+            }
+            if ($edition.edition -ne "free" -or $edition.create -or $edition.studio) { throw "Fresh installation must require Google sign-in" }
+            if ((Invoke-WebRequest "$url/studio").StatusCode -ne 200) { throw "Studio page did not load" }
+            if ((Invoke-WebRequest "$url/workflow").Content -notmatch 'up-dialog') { throw "Purchase dialog missing" }
+            Write-Host "Native x64 install and restricted first-launch Hub OK."
+          } finally { Stop-Process -Id $hub.Id -Force -ErrorAction SilentlyContinue }
