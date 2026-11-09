@@ -32,13 +32,6 @@ jobs:
           $installer = (Get-ChildItem -Filter *.exe).FullName
           $p = Start-Process -Wait -PassThru -FilePath $installer -ArgumentList "/S", "/D=$root"
           if ($p.ExitCode -ne 0) { throw "Setup exit code $($p.ExitCode)" }
-          # Diagnostic run: check the Windows bind probe on the installed candidate before repackaging.
-          $bootstrap = Join-Path $root "bootstrap.py"
-          $old = [IO.File]::ReadAllText($bootstrap)
-          $new = $old.Replace("with socket.create_connection(('127.0.0.1', port), timeout=1):", "with socket.socket() as probe:`n            probe.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)`n            probe.bind(('127.0.0.1', port))`n            return")
-          $new = $new.Replace("except ConnectionRefusedError:`n        return", "except OSError:`n        pass")
-          if ($old -eq $new) { throw "Diagnostic patch didn't apply" }
-          [IO.File]::WriteAllText($bootstrap, $new)
           $env:Path = "$env:SystemRoot\System32;$env:SystemRoot"
           $env:MUSE_PORT = "19345"
           $env:MUSE_STATE = "$env:RUNNER_TEMP\MuseAutoVidState"
@@ -62,3 +55,38 @@ jobs:
             Get-ChildItem "$env:MUSE_STATE\runner_logs" -Filter "*.log" -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName -Tail 20 }
             Stop-Process -Id $hub.Id -Force -ErrorAction SilentlyContinue
           }
+      - name: Launch installed desktop shortcut with a clean profile
+        shell: pwsh
+        run: |
+          $root = "$env:LOCALAPPDATA\MuseAutoVidSmoke"
+          $env:Path = "$env:SystemRoot\System32;$env:SystemRoot"
+          $env:MUSE_PORT = "19346"
+          $env:MUSE_STATE = "$env:RUNNER_TEMP\MuseAutoVidDesktopState"
+          $shell = New-Object -ComObject WScript.Shell
+          $link = Join-Path $shell.SpecialFolders.Item("Desktop") "MuseAutoVid.lnk"
+          if (!(Test-Path $link)) { throw "Desktop shortcut missing" }
+          $shortcut = $shell.CreateShortcut($link)
+          if ($shortcut.TargetPath -ne "$root\python\pythonw.exe") { throw "Unexpected desktop launcher" }
+          Start-Process -FilePath $link
+          $address = "http://127.0.0.1:19346"
+          for ($i=0;$i -lt 45;$i++) {
+            try { $info=Invoke-RestMethod "$address/api/edition" -NoProxy -TimeoutSec 2; break } catch { Start-Sleep 1 }
+          }
+          if (!$info -or $info.create -or !$info.release_id) {
+            Get-Content "$env:MUSE_STATE\runner_logs\hub.log" -Tail 20 -ErrorAction SilentlyContinue
+            throw "Shortcut did not start the licensed Hub"
+          }
+          $env:PLAYWRIGHT_BROWSERS_PATH = "$root\browsers"
+          $env:SSL_CERT_FILE = & "$root\python\python.exe" -I -c "import certifi;print(certifi.where())"
+          @'
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              page = browser.new_page()
+              page.goto('http://127.0.0.1:19346/workflow#/make')
+              page.get_by_role('button', name='Đăng nhập bằng Google', exact=True).wait_for(timeout=60000)
+              print('Desktop shortcut, packaged Chromium, and Google sign-in dialog OK.')
+              browser.close()
+          '@ | Set-Content "$env:RUNNER_TEMP\muse-ui-smoke.py" -Encoding UTF8
+          & "$root\python\python.exe" -I "$env:RUNNER_TEMP\muse-ui-smoke.py"
+          if ($LASTEXITCODE) { throw "Desktop UI verification failed" }
