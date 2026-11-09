@@ -24,7 +24,7 @@ jobs:
           if ($LASTEXITCODE) { throw "Checksum download failed" }
           $file = (Get-ChildItem -Filter *.exe).FullName
           $hash = (Get-FileHash $file -Algorithm SHA256).Hash
-          if ($hash -ne "5408678f2a20f33ac9bf21bc21f5a372247e8b5d6a5bb6a1f523adee0abfe6db") { throw "Unexpected Windows release candidate" }
+          if ($hash -ne "724e4783495136b33f92f4a2e8b46a40379f2bc0b77929fa2ddbaf92c22dff2b") { throw "Unexpected Windows release candidate" }
           if (!(Select-String -LiteralPath SHA256SUMS.txt -SimpleMatch $hash -Quiet)) { throw "Checksum mismatch" }
       - name: Install, check bundled runtime, and open Hub
         shell: pwsh
@@ -94,3 +94,16 @@ jobs:
           '@ | Set-Content "$env:RUNNER_TEMP\muse-ui-smoke.py" -Encoding UTF8
           & "$root\python\python.exe" -I "$env:RUNNER_TEMP\muse-ui-smoke.py"
           if ($LASTEXITCODE) { throw "Desktop UI verification failed" }
+      - name: Preserve other folders and reuse a verified installation
+        shell: pwsh
+        run: |
+          $installer = (Get-ChildItem -Filter "*WebSetup.exe").FullName
+          $other = "$env:LOCALAPPDATA\OtherApp"
+          New-Item -ItemType Directory -Path $other | Out-Null
+          Set-Content "$other\sentinel.txt" "preserve-this"
+          $bad = Start-Process -Wait -PassThru $installer -ArgumentList "/S", "/D=$other"
+          if ($bad.ExitCode -ne 1638 -or (Get-Content "$other\sentinel.txt") -ne "preserve-this") { throw "Unrelated folder changed" }
+          $root = "$env:LOCALAPPDATA\MuseAutoVidSmoke"
+          $again = Start-Process -Wait -PassThru $installer -ArgumentList "/S", "/D=$root"
+          if ($again.ExitCode -ne 0) { throw "Reinstall failed" }
+          Write-Host "Nonempty unrelated folder preserved; registered installation reused."
