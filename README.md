@@ -4,10 +4,10 @@
 
 | Hệ điều hành | Bộ cài |
 | --- | --- |
-| macOS 15 trở lên, chip Apple Silicon | [MuseAutoVid 1.6.0 cho Mac](https://github.com/datlevn09/museautovid/releases/download/v1.6.0/MuseAutoVid-1.6.0-macOS-arm64.dmg) |
-| Windows 10/11, x64 | [MuseAutoVid 1.6.0 cho Windows](https://github.com/datlevn09/museautovid/releases/download/v1.6.0/MuseAutoVid-1.6.0-Windows-x64-Setup.exe) |
+| macOS 15 trở lên, chip Apple Silicon | [MuseAutoVid 1.6.0 cho Mac](https://github.com/datlevn09/museautovid/releases/download/v1.6.0/MuseAutoVid-1.6.0-macOS-arm64-WebInstaller.dmg) |
+| Windows 10/11, x64 | [MuseAutoVid 1.6.0 cho Windows](https://github.com/datlevn09/museautovid/releases/download/v1.6.0/MuseAutoVid-1.6.0-Windows-x64-WebSetup.exe) |
 
-Trên Mac, mở DMG và kéo app vào Applications. Trên Windows, chạy Setup.exe và mở app từ Start. Bộ cài chứa trình duyệt, Python, FFmpeg và model chép lời. Khi mở app, đăng nhập Google để kích hoạt bản quyền, rồi thêm tài khoản Muse trong mục Tài khoản.
+Trên Mac, mở DMG rồi chạy MuseAutoVid Installer. Trên Windows, chạy WebSetup.exe. Bộ cài nhẹ hiển thị thanh tiến độ, tự tải gói ứng dụng và thư viện khoảng 0,9–1 GB, kiểm tra SHA-256 rồi cài app. Người dùng cần kết nối Internet trong lúc cài. Khi mở app, đăng nhập Google để kích hoạt bản quyền, rồi thêm tài khoản Muse trong mục Tài khoản.
 
 **Dùng thử 7 ngày** theo email Google đã xác minh. Mỗi lần tạo một ảnh hoặc video, tối đa 5 lượt mỗi ngày trên máy.
 
